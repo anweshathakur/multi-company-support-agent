@@ -1,134 +1,147 @@
-# HackerRank Orchestrate
+# AI Support Triage Agent
 
-Starter repository for the **HackerRank Orchestrate** 24-hour hackathon (May 1–2, 2026).
+An intelligent retrieval-based customer support automation system built for the HackerRank May 26 Orchestrate Hackathon.
 
-Build a terminal-based AI agent that triages real support tickets across three product ecosystems; **HackerRank**, **Claude**, and **Visa** — using only the support corpus shipped in this repo.
+This agent reads unresolved support tickets, identifies the correct company context, classifies the issue, retrieves the most relevant support documentation, and generates a grounded customer-facing support reply.
 
-Read [`problem_statement.md`](./problem_statement.md) for the full task spec, input/output schema, and allowed values, and [`evalutation_criteria.md`](./evalutation_criteria.md) for how submissions are scored.
-
----
-
-## Contents
-
-1. [Repository layout](#repository-layout)
-2. [What you need to build](#what-you-need-to-build)
-3. [Where your code goes](#where-your-code-goes)
-4. [Quickstart](#quickstart)
-5. [Chat transcript logging](#chat-transcript-logging)
-6. [Submission](#submission)
-7. [Judge interview](#judge-interview)
-8. [Evaluation criteria](#evaluation-criteria)
+The project is designed to simulate how enterprise support teams can automate first-level ticket triage while still maintaining high-quality, human-like responses.
 
 ---
 
-## Repository layout
+## Problem Statement
 
-```
-.
-├── AGENTS.md                       # Rules for AI coding tools + transcript logging
-├── problem_statement.md            # Full task description and I/O schema
-├── README.md                       # You are here
-├── code/                           # ← Build your agent here
-│   └── main.py                     #   Entry point (rename/extend as you like)
-├── data/                           # Local-only support corpus (no network needed)
-│   ├── hackerrank/                 #   HackerRank help center
-│   ├── claude/                     #   Claude Help Center export
-│   └── visa/                       #   Visa consumer + small-business support
-└── support_tickets/
-    ├── sample_support_tickets.csv  # Inputs + expected outputs (for development)
-    ├── support_tickets.csv         # Inputs only (run your agent on these)
-    └── output.csv                  # Write your agent's predictions here
-```
+Large support teams spend significant manual effort on:
+
+- identifying which product/company a ticket belongs to
+- understanding the nature of the issue
+- searching internal documentation
+- drafting repetitive customer replies
+
+This creates slower response times and higher operational load.
+
+Our solution automates this first-response triage layer using semantic retrieval and intelligent response orchestration.
 
 ---
 
-## What you need to build
+## Features
 
-A terminal-based agent that, for each row in `support_tickets/support_tickets.csv`, produces:
-
-| Column         | Allowed values                                          |
-| -------------- | ------------------------------------------------------- |
-| `status`       | `replied`, `escalated`                                  |
-| `product_area` | most relevant support category / domain area            |
-| `response`     | user-facing answer grounded in the provided corpus      |
-| `justification`| concise explanation of the routing/answering decision   |
-| `request_type` | `product_issue`, `feature_request`, `bug`, `invalid`    |
-
-Hard requirements (from `problem_statement.md`):
-
-- Must be **terminal-based**.
-- Must use **only the provided support corpus** (no live web calls for ground-truth answers).
-- Must **escalate** high-risk, sensitive, or unsupported cases instead of guessing.
-- Must avoid hallucinated policies or unsupported claims.
-
-Beyond that you are free to bring your own approach — RAG, vector DBs, tool use, structured output, agent frameworks, classical ML, or anything else.
+- Automatic company inference (HackerRank / Claude / Visa)
+- Request type classification
+- Product area detection
+- Escalation decision logic
+- Semantic retrieval over 700+ support documents
+- Human-like grounded support response generation
+- Execution logging for transparency
+- CSV prediction export for evaluation
 
 ---
 
-## Where your code goes
+## Project Architecture
 
-All of your work belongs in [`code/`](./code/). The repo ships with an empty `code/main.py` you can grow into your full agent — add more modules (`agent.py`, `retriever.py`, `classifier.py`, etc.) next to it as needed.
-
-Conventions:
-
-- Put a **README inside `code/`** describing how to install dependencies and run your agent.
-- Read secrets **from environment variables only** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, …). Copy `.env.example` → `.env` (already gitignored) if you keep one. **Never hardcode keys.**
-- Be **deterministic** where possible. Seed any random sampling.
-- Write responses to `support_tickets/output.csv`.
+1. Load all support documentation from company knowledge bases.
+2. Build semantic embeddings using SentenceTransformers.
+3. Read incoming support tickets CSV.
+4. Infer company if missing.
+5. Classify request type.
+6. Detect product area.
+7. Decide whether human escalation is required.
+8. Retrieve top relevant support documents.
+9. Generate customer-facing response.
+10. Export final structured output.
 
 ---
 
-## Quickstart
+## Tech Stack
 
-Clone this repository:
+- Python
+- Pandas
+- SentenceTransformers
+- HuggingFace Transformers
+- Cosine Similarity Retrieval
+- Markdown Knowledge Base Files
+
+---
+
+## Folder Structure
 
 ```bash
-git clone git@github.com:interviewstreet/hackerrank-orchestrate-may26.git
-cd hackerrank-orchestrate-may26
+hackerrank-orchestrate-may26/
+
+├── code/
+│   └── main.py
+
+├── data/
+│   ├── hackerrank/
+│   ├── claude/
+│   └── visa/
+
+├── support_tickets/
+│   ├── support_tickets.csv
+│   └── output.csv
+
+├── log.txt
+└── README.md
 ```
 
-You are free to use any language or runtime. We recommend **Python**, **JavaScript**, or **TypeScript**.
+---
+
+## How To Run
+
+Install dependencies:
+
+```bash
+pip install pandas sentence-transformers transformers torch tqdm
+```
+
+Run the agent:
+
+```bash
+py code/main.py
+```
+
+The system generates:
+
+- support_tickets/output.csv
+- log.txt
 
 ---
 
-## Chat transcript logging
+## Output Columns
 
-This repo ships with an `AGENTS.md` that any modern AI coding tool (Cursor, Claude Code, Codex, Gemini CLI, Copilot, etc.) will read. It instructs the tool to append every conversation turn to a single shared log file:
+The generated CSV contains:
 
-| Platform       | Path                                              |
-| -------------- | ------------------------------------------------- |
-| macOS / Linux  | `$HOME/hackerrank_orchestrate/log.txt`            |
-| Windows        | `%USERPROFILE%\hackerrank_orchestrate\log.txt`    |
-
-You don't need to do anything to enable it — just use your AI tool normally. You'll upload this `log.txt` as your chat transcript at submission time.
+- Response
+- Product Area
+- Status
+- Request Type
 
 ---
 
-## Submission
+## Intelligent Decision Layers
 
-Submit on the HackerRank Community Platform:
-<https://www.hackerrank.com/contests/hackerrank-orchestrate-may26/challenges/support-agent/submission>
+### Company Inference
 
-You will upload **three** files:
+Uses keyword heuristics and provided metadata to determine the most likely company context.
 
-1. **Code zip** — zip your `code/` directory and upload it. Exclude virtualenvs, `node_modules`, build artifacts, the `data/` corpus, and the `support_tickets/` CSVs.
-2. **Predictions CSV** — your agent's output for `support_tickets/support_tickets.csv` (i.e. the populated `output.csv`).
-3. **Chat transcript** — the `log.txt` from the path in [Chat transcript logging](#chat-transcript-logging).
+### Semantic Retrieval
+
+Uses dense vector similarity search to fetch the most relevant support documents from the internal corpus.
+
+### Product Area Detection
+
+Maps the ticket into product domains such as billing, dispute, account management, fraud support, privacy, and education.
+
+### Escalation Layer
+
+Critical outages, security vulnerabilities, or underspecified issues are automatically marked for human review.
+
+### Human Response Generation
+
+Generates concise customer-facing replies using retrieved support knowledge and issue-specific heuristics.
 
 ---
 
-## Judge interview
+## Future Improvements
 
-After a successful submission, your AI Judge interview will happen within a few hours after the hackathon ends. It will stay open for the next 4 hours. 
-
-The AI Judge will have access to your submission and may ask about your approach, decisions, and how you used AI while building your solution. The interview will be 30 minutes long, and keeping your camera on is mandatory.
-
-Results will be announced on May 15, 2026
-
----
-
-## Evaluation criteria
-
-Submissions are scored across four dimensions: agent design (your `code/`), the AI Judge interview, output accuracy on `support_tickets/output.csv`, and AI fluency from your chat transcript.
-
-See [`evalutation_criteria.md`](./evalutation_criteria.md) for the full rubric.
+- Replace heuristic response layer with a fine-tuned lightweight LLM
+- Add web dashboard for support agents

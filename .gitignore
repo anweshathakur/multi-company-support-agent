@@ -31,3 +31,11 @@ data/index/
 data/embeddings/
 *.sqlite
 *.db
+
+# Hackerrank evaluation artifacts
+support_tickets/
+output.csv
+log.txt
+
+# dataset 
+data/
